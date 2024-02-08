@@ -2,9 +2,10 @@ import sys
 sys.path.append("/Users/mikitosaarna/Downloads")
 import openpyxl
 import os
+import re
 
 class ConvertSheet:
-    def __init__(self, csv_file_path):
+    def __init__(self, xlsx_file_path):
 
       column_labels = ["First name", "Last name", "SSN", "Date of Birth", "Cell phone", "Email", "Property Address", "City", "State", "Zip"]
 
@@ -22,7 +23,7 @@ class ConvertSheet:
       new_spreadsheet = new_file.active
       new_spreadsheet.append(column_labels)
 
-      file = openpyxl.load_workbook(csv_file_path)
+      file = openpyxl.load_workbook(xlsx_file_path)
       spreadsheet = file.active
       first_row = spreadsheet[1]
 
@@ -43,11 +44,18 @@ class ConvertSheet:
           email = spreadsheet.cell(row=date_row["email"], column=search_column_index).value
           address = spreadsheet.cell(row=date_row["address"], column=search_column_index).value
 
-          city_state_zip = spreadsheet.cell(row=date_row["city/state/zip"], column=search_column_index)
-          city_state_zip_array = city_state_zip.value.split(" ")
-          city = city_state_zip_array[0][:-1]
-          state = city_state_zip_array[1]
-          zip = city_state_zip_array[2]
+          city_state_zip = spreadsheet.cell(row=date_row["city/state/zip"], column=search_column_index).value
+          if city_state_zip:
+            pattern = r'([A-Z]{2}) (\d{5})'
+            match = re.search(pattern, city_state_zip)
+            if match:
+              state = match.group(1)
+              zip = match.group(2)
+            else:
+              state = ""
+              zip = ""
+
+            city = city_state_zip.split(',')[0].strip()
 
           data_row = [
             first_name,
@@ -69,6 +77,5 @@ class ConvertSheet:
       new_file.save(save_file_path)
 
 if __name__ == "__main__":
-  # csv_file_path = '../../../Downloads/example_sheet.xlsx' # "~/Downloads/example_sheet - Sheet1.csv"
-  csv_file_path = '../../../Downloads/mortgage closings 1.2 (1) (1).xlsx'
-  ConvertSheet(csv_file_path)
+  xlsx_file_path = '../../../Downloads/file-name.xlsx'
+  ConvertSheet(xlsx_file_path)
