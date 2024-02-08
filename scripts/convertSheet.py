@@ -1,9 +1,12 @@
 import sys
 sys.path.append("/Users/mikitosaarna/Downloads")
 import openpyxl
+import os
 
 class ConvertSheet:
     def __init__(self, csv_file_path):
+
+      column_labels = ["First name", "Last name", "SSN", "Date of Birth", "Cell phone", "Email", "Property Address", "City", "State", "Zip"]
 
       date_row = {
         "name": 13,
@@ -14,6 +17,10 @@ class ConvertSheet:
         "address": 25,
         "city/state/zip": 26
       }
+
+      new_file = openpyxl.Workbook()
+      new_spreadsheet = new_file.active
+      new_spreadsheet.append(column_labels)
 
       file = openpyxl.load_workbook(csv_file_path)
       spreadsheet = file.active
@@ -42,17 +49,26 @@ class ConvertSheet:
           state = city_state_zip_array[1]
           zip = city_state_zip_array[2]
 
-          print("First Name: ", first_name)
-          print("Last Name: ", last_name)
-          print("SSN: ", ssn)
-          print("DOB: ", dob_formatted)
-          print("Cell: ", cell)
-          print("Email: ", email)
-          print("Address: ", address)
-          print("City: ", city)
-          print("State: ", state)
-          print("Zip: ", zip)
+          data_row = [
+            first_name,
+            last_name,
+            ssn,
+            dob_formatted,
+            cell,
+            email,
+            address,
+            city,
+            state,
+            zip
+          ]
+
+          new_spreadsheet.append(data_row)
+
+      home_directory = os.path.expanduser('~')
+      save_file_path = os.path.join(home_directory, 'Downloads', 'new_file_1.xlsx')
+      new_file.save(save_file_path)
 
 if __name__ == "__main__":
-  csv_file_path = '../../../Downloads/example_sheet.xlsx' # "~/Downloads/example_sheet - Sheet1.csv"
+  # csv_file_path = '../../../Downloads/example_sheet.xlsx' # "~/Downloads/example_sheet - Sheet1.csv"
+  csv_file_path = '../../../Downloads/mortgage closings 1.2 (1) (1).xlsx'
   ConvertSheet(csv_file_path)
